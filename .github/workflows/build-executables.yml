@@ -25,10 +25,10 @@ jobs:
             artifact_name: photo-crop-rotate-windows-x64
             executable_name: photo-crop-rotate.exe
             archive_name: photo-crop-rotate-windows-x64.zip
-          - os: macos-15-intel
-            artifact_name: photo-crop-rotate-macos-x64
+          - os: macos-15
+            artifact_name: photo-crop-rotate-macos-arm64
             executable_name: photo-crop-rotate
-            archive_name: photo-crop-rotate-macos-x64.tar.gz
+            archive_name: photo-crop-rotate-macos-arm64.tar.gz
 
     steps:
       - name: Check out source
