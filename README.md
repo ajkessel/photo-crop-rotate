@@ -50,4 +50,4 @@ face detector as a fallback for distant grayscale group photos.
 
 ## License
 
-[BSD 2-Clause][LICENSE]
+[BSD 2-Clause](LICENSE)
