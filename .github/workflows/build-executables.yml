@@ -25,6 +25,7 @@ jobs:
             artifact_name: photo-crop-rotate-windows-x64
             executable_name: photo-crop-rotate.exe
             archive_name: photo-crop-rotate-windows-x64.zip
+          # MediaPipe publishes macOS arm64 wheels, but not macOS x86_64 wheels.
           - os: macos-15
             artifact_name: photo-crop-rotate-macos-arm64
             executable_name: photo-crop-rotate
