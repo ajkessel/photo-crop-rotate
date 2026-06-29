@@ -1,0 +1,104 @@
+name: Publish release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build ${{ matrix.artifact_name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact_name: photo-crop-rotate-linux-x64
+            executable_name: photo-crop-rotate
+            archive_name: photo-crop-rotate-linux-x64.tar.gz
+          - os: windows-latest
+            artifact_name: photo-crop-rotate-windows-x64
+            executable_name: photo-crop-rotate.exe
+            archive_name: photo-crop-rotate-windows-x64.zip
+          - os: macos-15-intel
+            artifact_name: photo-crop-rotate-macos-x64
+            executable_name: photo-crop-rotate
+            archive_name: photo-crop-rotate-macos-x64.tar.gz
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: "pip"
+          cache-dependency-path: |
+            requirements.txt
+            requirements-build.txt
+
+      - name: Install dependencies
+        run: python -m pip install -r requirements-build.txt
+
+      - name: Run tests
+        run: python -m pytest -q
+
+      - name: Download bundled MediaPipe model
+        run: python -c "from photo_crop_rotate import DEFAULT_MODEL_URL, ensure_model; ensure_model(None, DEFAULT_MODEL_URL)"
+
+      - name: Build executable
+        run: pyinstaller --clean --noconfirm photo_crop_rotate.spec
+
+      - name: Smoke test executable
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p smoke/in smoke/out
+          python - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+          p = Path("smoke/in/smoke.jpg")
+          Image.new("RGB", (80, 60), "white").save(p)
+          PY
+          "./dist/${{ matrix.executable_name }}" smoke/in/smoke.jpg -o smoke/out --skip-orientation --overwrite
+
+      - name: Package executable
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p package
+          cp "dist/${{ matrix.executable_name }}" "package/${{ matrix.executable_name }}"
+          cp README.md LICENSE package/
+          if [[ "${{ runner.os }}" == "Windows" ]]; then
+            powershell -NoProfile -Command "Compress-Archive -Path package/* -DestinationPath '${{ matrix.archive_name }}' -Force"
+          else
+            tar -czf "${{ matrix.archive_name }}" -C package .
+          fi
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: ${{ matrix.archive_name }}
+          if-no-files-found: error
+
+  publish:
+    name: Publish GitHub release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download release artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-artifacts
+          merge-multiple: true
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release-artifacts/*
+          generate_release_notes: true

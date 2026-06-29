@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+.pytest_cache/
+models/
+debug/
+processed/
+build/
+dist/
+*.pyc
