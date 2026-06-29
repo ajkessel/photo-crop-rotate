@@ -1,16 +1,22 @@
 # Photo Crop Rotate
 
-Batch-process scanned photographs by cropping scanner borders and rotating each
-image to the face orientation detected by MediaPipe. If a scan clearly contains
-multiple photos separated by white scanner margin, the scan is split into
-numbered output files before each photo is cropped and rotated.
+This is a command-line tool that batch-process scanned photographs by cropping 
+scanner borders and rotating each image to the face orientation detected by MediaPipe. 
+If a scan clearly contains multiple photos separated by white scanner margin, the scan
+is split into numbered output files before each photo is cropped and rotated.
 
 A typical use case is when you have scanned old photographs with a scanner that
 does not detect orientation or crop to the size of the image. You can put all
 of those photos into a folder and run this script. Assuming there are faces in
 the photos, it will make a best guess at the proper rotation for each image.
 
-## Setup
+## Download Latest Build
+
+* [MacOS](https://github.com/ajkessel/photo-crop-rotate/releases/latest/download/photo-crop-rotate-macos-arm64.tar.gz) (Apple Silicon; Intel Macs are not supported)
+* [Windows](https://github.com/ajkessel/photo-crop-rotate/releases/latest/download/photo-crop-rotate-windows-x64.zip)
+* [Linux](https://github.com/ajkessel/photo-crop-rotate/releases/latest/download/photo-crop-rotate-linux-x64.tar.gz)
+
+## Setup / Run From Source
 
 ```bash
 python -m venv .venv
@@ -21,7 +27,7 @@ python -m pip install -r requirements.txt
 ## Usage
 
 ```bash
-python photo_crop_rotate.py scans/ -o processed/ --recursive
+photo_crop_rotate scans/ -o processed/ --recursive
 ```
 
 The script accepts any mix of image files and image directories. It writes a
@@ -31,12 +37,12 @@ decision, number of detected faces, and any errors.
 Useful options:
 
 ```bash
-python photo_crop_rotate.py scans/ -o processed/ --debug-dir debug/
-python photo_crop_rotate.py scans/ -o processed/ --no-split
-python photo_crop_rotate.py scans/ -o processed/ --skip-orientation
-python photo_crop_rotate.py scans/ -o processed/ --no-contrast-fallback
-python photo_crop_rotate.py scans/ -o processed/ --no-haar-fallback
-python photo_crop_rotate.py scans/ -o processed/ --format jpeg --jpeg-quality 95
+photo_crop_rotate scans/ -o processed/ --debug-dir debug/
+photo_crop_rotate scans/ -o processed/ --no-split
+photo_crop_rotate scans/ -o processed/ --skip-orientation
+photo_crop_rotate scans/ -o processed/ --no-contrast-fallback
+photo_crop_rotate scans/ -o processed/ --no-haar-fallback
+photo_crop_rotate scans/ -o processed/ --format jpeg --jpeg-quality 95
 ```
 
 When splitting is triggered, outputs are named with a numeric suffix, such as
